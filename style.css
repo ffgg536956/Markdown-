@@ -1,0 +1,123 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: #1e1e1e; /* 深色背景 */
+    color: #e0e0e0; /* 浅色文字 */
+}
+
+.container {
+    background-color: #2a2a2a; /* 容器背景，比 body 稍亮 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5); /* 调整阴影以适应深色背景 */
+    border: 1px solid #444; /* 添加细微边框 */
+}
+
+h1 {
+    text-align: center;
+    color: #eeeeee; /* 标题颜色 */
+}
+
+label {
+    display: block;
+    margin-bottom: 8px; /* 稍微调整间距 */
+    font-weight: bold;
+    color: #bbbbbb; /* 标签颜色 */
+}
+
+textarea {
+    width: 100%;
+    padding: 12px; /* 稍微增大内边距 */
+    margin-bottom: 15px;
+    border: 1px solid #555; /* 边框颜色 */
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 0.95em;
+    background-color: #333333; /* 输入框背景色 */
+    color: #e0e0e0; /* 输入框文字颜色 */
+}
+
+textarea::placeholder { /* Placeholder 颜色 */
+    color: #888;
+}
+
+textarea[readonly] {
+    background-color: #252525; /* 只读输入框背景色 */
+    color: #aaa; /* 只读输入框文字颜色 */
+    cursor: not-allowed;
+}
+
+button {
+    padding: 10px 15px;
+    margin-right: 10px;
+    margin-bottom: 15px;
+    background-color: #005f99; /* 深色主题的蓝色 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #0077cc; /* 悬停时更亮的蓝色 */
+}
+
+/* 特定按钮的深色模式颜色 */
+#pasteButton {
+    background-color: #1e7e34; /* 深绿色 */
+}
+#pasteButton:hover {
+    background-color: #28a745; /* 亮绿色 */
+}
+
+#copyButton {
+    background-color: #b8860b; /* 深黄色/金色 */
+    color: #fff;
+}
+#copyButton:hover {
+    background-color: #daa520; /* 亮金色 */
+}
+
+#clearInputButton { /* 新增清除按钮的样式 */
+    background-color: #8c8c8c; /* 中性灰色 */
+    color: #fff;
+}
+#clearInputButton:hover {
+    background-color: #a0a0a0; /* 稍亮的灰色 */
+}
+
+
+/* 状态消息颜色调整 */
+.status {
+    margin-top: 10px;
+    font-size: 0.9em;
+    min-height: 1.2em;
+    /* 默认颜色继承 body */
+}
+
+/* 特定状态颜色 (确保在深色背景下可见) */
+.status[style*="color: green;"] {
+    color: #77dd77 !important; /* 亮绿色 */
+}
+.status[style*="color: orange;"] {
+    color: #ffcc66 !important; /* 亮橙色 */
+}
+.status[style*="color: red;"] {
+    color: #ff6f6f !important; /* 亮红色 */
+}
+.status[style*="color: gray;"] { /* 为清除按钮添加灰色状态 */
+    color: #aaaaaa !important; /* 灰色 */
+}
+
+/* 按钮容器，让按钮在一行显示更好看 */
+div > button {
+    margin-bottom: 5px; /* 减小按钮下边距，因为它们在 div 里 */
+}
+label + div { /* 标签后的按钮容器 */
+    margin-bottom: 10px;
+}
