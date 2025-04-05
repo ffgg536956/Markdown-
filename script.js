@@ -116,10 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 添加当前 表头：值 对
                     if (headerIndex === 0) {
                         // 第一项的格式稍有不同 (根据原始示例)
-                        rowOutputLines.push(`${currentHeader} 呢：${currentCellValue}；`);
+                        rowOutputLines.push(`${currentHeader}呢：${currentCellValue}；`);
                     } else {
                         // 后续项的格式
-                        rowOutputLines.push(`${currentHeader}  呢： ${currentCellValue}；`);
+                        rowOutputLines.push(`${currentHeader}呢： ${currentCellValue}；`);
                     }
 
                     // --- 新逻辑核心：重复第一列信息 ---
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 并且后面还有列时，重复第一列的 表头：值，并加一个空行
                     if (headerIndex > 0 && headerIndex % 2 !== 0 && headerIndex < headers.length - 1) {
                        // 添加重复的第一列信息
-                       rowOutputLines.push(`${firstHeader} 呢：${firstCellValue}；`);
+                       rowOutputLines.push(`${firstHeader}呢：${firstCellValue}；`);
                        // 添加一个空行（通过 join('\n') 实现）
                        rowOutputLines.push('');
                     }
