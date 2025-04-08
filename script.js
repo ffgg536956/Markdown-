@@ -64,11 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
         copyToClipboard(output, false); // false 表示是手动复制
     });
 
-    // --- 核心转换逻辑 (已更新为新逻辑) ---
+    // --- 核心转换逻辑 (更新为新逻辑) ---
     function convertMarkdownTableToSMS(markdownText) {
         // 正则表达式匹配 Markdown 表格 (保持不变)
         const tableRegex = /^\s*\|(.+)\|\s*?\n\s*\|[-:|\s]+\|\s*?\n((?:^\s*\|.*\|\s*?\n?)+)/gm;
 
+        // 使用 replace 函数处理每个匹配到的表格
         return markdownText.replace(tableRegex, (match, headerLine, rowLines) => {
             // 1. 解析表头 (保持不变)
             const headers = headerLine
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .map(h => h.trim())
                 .filter(h => h); // 移除因首尾管道符产生的空字符串
 
-            // 2. 解析数据行 (稍作调整以方便索引)
+            // 2. 解析数据行 (保持不变，slice确保索引正确)
             const rows = rowLines
                 .trim() // 去除末尾可能的多余换行符
                 .split('\n')
@@ -84,52 +85,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     rowLine
                         .split('|')
                         .map(cell => cell.trim())
-                        // .slice(1, -1) 确保索引与 headers 匹配
+                        // slice(1, length - 1) 移除首尾空字符串并对齐数据
                         .slice(1, rowLine.split('|').length - 1)
                 );
 
             // 3. 格式化输出 (应用新逻辑)
-            let smsOutput = '';
+            let smsOutput = ''; // 用于存储整个表格转换后的文本
             rows.forEach((rowCells, rowIndex) => {
-                // 确保行单元格数量与表头匹配 (简单检查)
-                 if (!rowCells || rowCells.length < headers.length) {
-                    // 如果行数据不完整，可能需要跳过或填充空值，这里选择填充
+                // 检查并修正行单元格数量与表头数量（除第一个外）的匹配
+                const expectedCellCount = headers.length;
+                 if (!rowCells || rowCells.length < expectedCellCount) {
                     // console.warn(`Row ${rowIndex + 1} has fewer cells than headers. Padding with empty strings.`);
-                    while (rowCells.length < headers.length) {
+                    while (rowCells.length < expectedCellCount) {
                         rowCells.push('');
                     }
-                 } else if (rowCells.length > headers.length) {
-                    // 如果行数据过多，截断多余部分
+                 } else if (rowCells.length > expectedCellCount) {
                     // console.warn(`Row ${rowIndex + 1} has more cells than headers. Truncating.`);
-                    rowCells = rowCells.slice(0, headers.length);
+                    rowCells = rowCells.slice(0, expectedCellCount);
                  }
 
-
-                const firstHeader = headers[0];
-                const firstCellValue = rowCells[0] || ''; // 获取第一列单元格的值
-
+                const rowTitle = rowCells[0] || ''; // 获取第一列的值（行标题）
                 let rowOutputLines = []; // 存储当前原始行转换后的所有行文本
 
+                // 遍历表头和单元格，跳过第一个表头和第一个单元格 (headerIndex > 0)
                 headers.forEach((currentHeader, headerIndex) => {
-                    const currentCellValue = rowCells[headerIndex] || ''; // 获取当前单元格的值
-
-                    // 添加当前 表头：值 对
-                    if (headerIndex === 0) {
-                        // 第一项的格式稍有不同 (根据原始示例)
-                        rowOutputLines.push(`${currentHeader}呢：${currentCellValue}；`);
-                    } else {
-                        // 后续项的格式
-                        rowOutputLines.push(`${currentHeader}呢： ${currentCellValue}；`);
-                    }
-
-                    // --- 新逻辑核心：重复第一列信息 ---
-                    // 在处理完第 2、4、6... 列数据后（即 headerIndex 为 1、3、5... 时）
-                    // 并且后面还有列时，重复第一列的 表头：值，并加一个空行
-                    if (headerIndex > 0 && headerIndex % 2 !== 0 && headerIndex < headers.length - 1) {
-                       // 添加重复的第一列信息
-                       rowOutputLines.push(`${firstHeader}呢：${firstCellValue}；`);
-                       // 添加一个空行（通过 join('\n') 实现）
-                       rowOutputLines.push('');
+                    // 从第二个表头（索引为1）开始处理
+                    if (headerIndex > 0) {
+                        const currentCellValue = rowCells[headerIndex] || ''; // 获取当前单元格的值
+                        // 组合格式： 列标题，行标题呢： 单元格值；
+                        // 注意：根据示例，在 "呢：" 前后添加了空格，保持一致性
+                        rowOutputLines.push(`${currentHeader}，${rowTitle}呢： ${currentCellValue}；`);
                     }
                 });
 
@@ -137,13 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 smsOutput += rowOutputLines.join('\n');
 
                 // 在不同原始行转换出的文本块之间添加两个空行（即三个换行符）
+                // 确保不是最后一行才添加分隔符
                 if (rowIndex < rows.length - 1) {
                     smsOutput += '\n\n\n';
                 }
             });
 
-            // 在整个转换后的表格文本前后添加空行（前一个，后两个）
-            return '\n' + smsOutput + '\n\n';
+            // 只返回转换后的表格内容。
+            // replace 函数会自动将 markdownText 中匹配的部分替换为这个返回值
+            // 表格前后的原始文本会保留
+            return smsOutput;
         });
     }
 
