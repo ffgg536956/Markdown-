@@ -132,9 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 从第二个表头（索引为1）开始处理
                     if (headerIndex > 0) {
                         const currentCellValue = rowCells[headerIndex] || ''; // 获取当前单元格的值
-                        // 组合格式： 列标题，行标题呢： 单元格值；
+                        // 组合格式： 列标题，行标题呢： 单元格值。
                         // 注意：根据示例，在 "呢：" 前后添加了空格，保持一致性
-                        rowOutputLines.push(`${currentHeader}，${rowTitle}呢： ${currentCellValue}；`);
+                        rowOutputLines.push(`${currentHeader}，${rowTitle}呢： ${currentCellValue}。`);
                     }
                 });
 
@@ -203,9 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 从第二个表头（索引为1）开始处理
                     if (headerIndex > 0) {
                         const currentCellValue = rowCells[headerIndex] || ''; // 获取当前单元格的值
-                        // 组合格式： 列标题，行标题呢： \n 单元格值；
+                        // 组合格式： 列标题，行标题呢： \n 单元格值。
                         // 注意：根据示例，在 "呢：" 后添加了换行符
-                        rowOutputLines.push(`${currentHeader}，${rowTitle}呢： \n ${currentCellValue}；`);
+                        rowOutputLines.push(`${currentHeader}，${rowTitle}呢： \n ${currentCellValue}。`);
                     }
                 });
 
