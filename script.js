@@ -84,6 +84,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- 转换3按钮功能 ---
+    const convertButton3 = document.getElementById('convertButton3');
+    convertButton3.addEventListener('click', () => {
+        const input = inputText.value;
+        if (!input.trim()) {
+            setStatus('输入内容不能为空。', 'orange');
+            return;
+        }
+        try {
+            // 调用新的转换函数
+            const convertedText = convertMarkdownTableToSMS3(input);
+            outputText.value = convertedText;
+            // 转换成功后自动复制到剪贴板
+            copyToClipboard(convertedText, true); // true 表示是自动复制
+        } catch (error) {
+            console.error("转换出错:", error);
+            setStatus(`转换过程中发生错误: ${error.message}`, 'red');
+        }
+    });
+
     // --- 核心转换逻辑 (更新为新逻辑) ---
     function convertMarkdownTableToSMS(markdownText) {
         // 正则表达式匹配 Markdown 表格 (保持不变)
@@ -206,6 +226,77 @@ document.addEventListener('DOMContentLoaded', () => {
                         // 组合格式： 列标题，行标题呢： \n 单元格值。
                         // 注意：根据示例，在 "呢：" 后添加了换行符
                         rowOutputLines.push(`${currentHeader}，${rowTitle}呢： \n ${currentCellValue}。`);
+                    }
+                });
+
+                // 将当前原始行生成的所有文本行用换行符连接起来
+                smsOutput += rowOutputLines.join('\n');
+
+                // 在不同原始行转换出的文本块之间添加两个空行（即三个换行符）
+                // 确保不是最后一行才添加分隔符
+                if (rowIndex < rows.length - 1) {
+                    smsOutput += '\n\n\n';
+                }
+            });
+
+            // 只返回转换后的表格内容。
+            // replace 函数会自动将 markdownText 中匹配的部分替换为这个返回值
+            // 表格前后的原始文本会保留
+            return smsOutput;
+        });
+    }
+
+    // --- 核心转换逻辑 (转换3) ---
+    function convertMarkdownTableToSMS3(markdownText) {
+        // 正则表达式匹配 Markdown 表格 (保持不变)
+        const tableRegex = /^\s*\|(.+)\|\s*?\n\s*\|[-:|\s]+\|\s*?\n((?:^\s*\|.*\|\s*?\n?)+)/gm;
+
+        // 使用 replace 函数处理每个匹配到的表格
+        return markdownText.replace(tableRegex, (match, headerLine, rowLines) => {
+            // 1. 解析表头 (保持不变)
+            const headers = headerLine
+                .split('|')
+                .map(h => h.trim())
+                .filter(h => h); // 移除因首尾管道符产生的空字符串
+
+            // 2. 解析数据行 (保持不变，slice确保索引正确)
+            const rows = rowLines
+                .trim() // 去除末尾可能的多余换行符
+                .split('\n')
+                .map(rowLine =>
+                    rowLine
+                        .split('|')
+                        .map(cell => cell.trim())
+                        // slice(1, length - 1) 移除首尾空字符串并对齐数据
+                        .slice(1, rowLine.split('|').length - 1)
+                );
+
+            // 3. 格式化输出 (应用新逻辑)
+            let smsOutput = ''; // 用于存储整个表格转换后的文本
+            rows.forEach((rowCells, rowIndex) => {
+                // 检查并修正行单元格数量与表头数量（除第一个外）的匹配
+                const expectedCellCount = headers.length;
+                 if (!rowCells || rowCells.length < expectedCellCount) {
+                    // console.warn(`Row ${rowIndex + 1} has fewer cells than headers. Padding with empty strings.`);
+                    while (rowCells.length < expectedCellCount) {
+                        rowCells.push('');
+                    }
+                 } else if (rowCells.length > expectedCellCount) {
+                    // console.warn(`Row ${rowIndex + 1} has more cells than headers. Truncating.`);
+                    rowCells = rowCells.slice(0, expectedCellCount);
+                 }
+
+                const rowTitle = rowCells[0] || ''; // 获取第一列的值（行标题）
+                let rowOutputLines = []; // 存储当前原始行转换后的所有行文本
+
+                // 遍历表头和单元格，跳过第一个表头和第一个单元格 (headerIndex > 0)
+                headers.forEach((currentHeader, headerIndex) => {
+                    // 从第二个表头（索引为1）开始处理
+                    if (headerIndex > 0) {
+                        const currentCellValue = rowCells[headerIndex] || ''; // 获取当前单元格的值
+                        // 组合格式： 列标题，\n 行标题呢： \n 单元格值。
+                        // 注意：根据示例，在 "呢：" 后添加了换行符
+                        rowOutputLines.push(`${currentHeader}，\n ${rowTitle}呢： \n ${currentCellValue}。`);
                     }
                 });
 
